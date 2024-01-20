@@ -65,4 +65,4 @@ project were possible, but this project is taking a slightly different direction
 
 - Based on AdminLTE 3: https://adminlte.io/
 - Using Bootstrap 4: https://getbootstrap.com/
-- Using Font Awesome 5: https://fontawesome.com/
+- Using Font Awesome 6: https://fontawesome.com/
