@@ -213,13 +213,36 @@ def make_menu(
 
         # App links
         elif "app" in link and allow_appmenus:
+            ordering = options.get("order_topmenu_links", [])
+            ordering = [x.lower() for x in ordering]
             children = [
-                {"name": child.get("verbose_name", child["name"]), "url": child["url"], "children": None}
+                {"name": child.get("verbose_name", child["name"]), "url": child["url"], "children": None, "model": child["model"]}
                 for child in get_app_admin_urls(link["app"], admin_site=admin_site)
                 if child["model"] in model_permissions
             ]
             if len(children) == 0:
                 continue
+
+            # Apply ordering to children
+            custom_link_names = [x.get("model", "").lower() for x in children]
+            model_ordering = list(
+                filter(
+                    lambda x: x.lower().startswith("{}.".format(link["app"])) or  x.lower() in custom_link_names,
+                    ordering,
+                )
+            )
+
+            if model_ordering:
+                children = order_with_respect_to(
+                    children,
+                    model_ordering,
+                    getter=lambda x: x.get("model_str", x.get("model", "").lower()),
+                )
+
+            # Add any remaining models not specified in the ordering to the end
+            remaining_models = [child for child in children if child["model"].lower() not in custom_link_names]
+            children.extend(remaining_models)
+
 
             menu.append(
                 {
